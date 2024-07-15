@@ -18,9 +18,29 @@ namespace WebApi.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationResultModel))]
         public async Task<IActionResult> GetBanks()
         {
-            var response = await _client.GetAsync("https://wema-alatdev-apimgt.developer.azure-api.net/api-details#api=alat-tech-test-api/GetBanks");
-            var banks = await response.Content.ReadAsByteArrayAsync();
+            var response = await _client.GetAsync("https://wema-alatdev-apimgt.azure-api.net/alat-test/api/Shared/GetAllBanks");
+            if (!response.IsSuccessStatusCode)
+            {
+                
+                return BadRequest(new BaseResponse
+                {
+                    Message = $"Error fetching banks: {response.StatusCode}"
+                });
+            }
+
+            var contentType = response.Content.Headers.ContentType?.MediaType;
+            if (contentType != "application/json")
+            {
+                
+                return BadRequest(new BaseResponse
+                {
+                    Message = "Unexpected content type"
+                });
+            }
+
+            var banks = await response.Content.ReadAsStringAsync();
             return Ok(banks);
+            
         }
     }
 }

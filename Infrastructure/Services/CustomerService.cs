@@ -28,9 +28,37 @@ namespace Infrastructure.Services
             _logger = logger;
             _passwordHasherService = passwordHasherService;
         }
-        public Task<BaseResponse<IEnumerable<CustomerDto>>> GetAllOnboardedCustomers()
+        public async Task<BaseResponse<IEnumerable<CustomerDto>>> GetAllOnboardedCustomersAsync()
         {
-            throw new NotImplementedException();
+            var customers = await _customerRepository.GetAllOnboardedCustomers();
+            if (customers is null || !customers.Any())
+            {
+                _logger.LogError("Customers are empty, couldn't be fetched");
+                return new BaseResponse<IEnumerable<CustomerDto>>
+                {
+                    Message = $"Customers are empty, or couldn't be fetched",
+                    Status = false,
+
+                };
+            }
+
+            var customersDto = customers.Select(c => new CustomerDto
+            {
+                Id = c.Id,
+                Email = c.Email,
+                PhoneNumber = c.PhoneNumber,
+                LGA = c.LGA,
+                StateOfResidence = c.StateOfResidence,
+                IsVerified = c.IsVerified,
+
+            }).ToList();
+
+            return new BaseResponse<IEnumerable<CustomerDto>>
+            {
+                Message = "Customers fetched successfully",
+                Status = true,
+                Data = customersDto
+            };
         }
 
         //public Task<BaseResponse<Customer>> GetCustomerByPhoneNumber(string phoneNumber)
@@ -38,7 +66,7 @@ namespace Infrastructure.Services
         //    throw new NotImplementedException();
         //}
 
-        public async Task<BaseResponse<Customer>> OnboardCustomer(OnboardCustomerRequestModel request)
+        public async Task<BaseResponse<Customer>> OnboardCustomerAsync(OnboardCustomerRequestModel request)
         {
             if(request is null)
             {

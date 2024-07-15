@@ -79,22 +79,12 @@ namespace Infrastructure.Services
 
             var existingCustomer = await _customerRepository.GetCustomerByPhoneNumber(request.PhoneNumber);
 
-            if (existingCustomer is null)
+            if (existingCustomer is not null)
             {
-                _logger.LogError("Customer doesnt exist!");
+                _logger.LogError("Customer already exist!");
                 return new BaseResponse<Customer>
                 {
-                    Message = "Customer doesnt exist!",
-                    Status = false
-                };
-            }
-
-            if (existingCustomer.IsVerified)
-            {
-                _logger.LogError("Phone number already verified!");
-                return new BaseResponse<Customer>
-                {
-                    Message = "Phone number already verified!",
+                    Message = "Customer already exist!",
                     Status = false
                 };
             }
@@ -206,6 +196,16 @@ namespace Infrastructure.Services
                 return new BaseResponse
                 {
                     Message = "OTP entered has expired!",
+                    Status = false
+                };
+            }
+
+            if (getCustomer.IsVerified)
+            {
+                _logger.LogError("Phone number already verified!");
+                return new BaseResponse
+                {
+                    Message = "Phone number already verified!",
                     Status = false
                 };
             }
