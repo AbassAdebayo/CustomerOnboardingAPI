@@ -33,8 +33,8 @@ namespace Test
             // Arrange
             var onboardCustomerDTO = new OboardCustomerRequestModel
             {
-                PhoneNumber = "1234567890",
-                Email = "test@example.com",
+                PhoneNumber = "08123487093",
+                Email = "deji@gmail.com",
                 Password = "password",
                 StateOfResidence = "Oyo",
                 LGA = "Akinyele"
