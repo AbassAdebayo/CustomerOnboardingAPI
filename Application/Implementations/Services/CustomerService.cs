@@ -79,7 +79,7 @@ namespace Infrastructure.Services
 
             var existingCustomer = await _customerRepository.GetCustomerByPhoneNumber(request.PhoneNumber);
 
-            if (existingCustomer is not null)
+            if (existingCustomer != null)
             {
                 _logger.LogError("Customer already exist!");
                 return new BaseResponse<Customer>
@@ -111,9 +111,6 @@ namespace Infrastructure.Services
                 StateOfResidence = request.StateOfResidence
             };
 
-            customer.OTP = GenerateOTP();
-            customer.OTPExpiration = DateTime.UtcNow.AddMinutes(5);
-
             var newCustomer = await _customerRepository.AddCustomer(customer);
             if (newCustomer is null)
             {
@@ -125,12 +122,14 @@ namespace Infrastructure.Services
                 };
             }
 
-            await SendOTPAsync(customer.PhoneNumber);
+            newCustomer.OTP = GenerateOTP();
+            newCustomer.OTPExpiration = DateTime.UtcNow.AddMinutes(5);
+            await SendOTPAsync(newCustomer.PhoneNumber);
 
             _logger.LogError("Customer has been created and OTP sent successfully.");
             return new BaseResponse<Customer>
             {
-                Message = $"Customer has been created and OTP sent to {customer.PhoneNumber} successfully.",
+                Message = $"Customer has been created and OTP sent to {newCustomer.PhoneNumber} successfully.",
                 Status = true,
                 Data = newCustomer
             };
