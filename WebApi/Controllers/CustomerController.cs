@@ -21,7 +21,7 @@ namespace WebApi.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationResultModel))]
         public async Task<IActionResult> OnboardCustomer([FromBody] OnboardCustomerRequestModel model)
         {
-            var response = await _customerService.OnboardCustomer(model);
+            var response = await _customerService.OnboardCustomerAsync(model);
             return response.Status ? Ok(response) : BadRequest(response);
         }
 
@@ -30,7 +30,7 @@ namespace WebApi.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationResultModel))]
         public async Task<IActionResult> GetAllOnboardedCustomers()
         {
-            var response = await _customerService.GetAllOnboardedCustomers();
+            var response = await _customerService.GetAllOnboardedCustomersAsync();
             return response.Status ? Ok(response) : BadRequest(response);
         }
 

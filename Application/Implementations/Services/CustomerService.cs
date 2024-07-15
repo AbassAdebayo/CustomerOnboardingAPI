@@ -27,7 +27,7 @@ namespace Infrastructure.Services
             _logger = logger;
             _passwordHasherService = passwordHasherService;
         }
-        public async Task<BaseResponse<IEnumerable<CustomerDto>>> GetAllOnboardedCustomers()
+        public async Task<BaseResponse<IEnumerable<CustomerDto>>> GetAllOnboardedCustomersAsync()
         {
             var customers = await _customerRepository.GetAllOnboardedCustomers();
             if (customers is null || !customers.Any())
@@ -65,7 +65,7 @@ namespace Infrastructure.Services
         //    throw new NotImplementedException();
         //}
 
-        public async Task<BaseResponse<Customer>> OnboardCustomer(OnboardCustomerRequestModel request)
+        public async Task<BaseResponse<Customer>> OnboardCustomerAsync(OnboardCustomerRequestModel request)
         {
             if (request is null)
             {
