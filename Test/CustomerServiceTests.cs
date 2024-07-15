@@ -30,14 +30,14 @@ namespace Test
         [Fact]
         public async Task OnboardCustomerAsync_ShouldReturnCustomer_WhenPhoneNumberIsVerified()
         {
-                // Arrange
-                var onboardCustomerDTO = new OboardCustomerRequestModel
+            // Arrange
+            var onboardCustomerDTO = new OboardCustomerRequestModel
             {
                 PhoneNumber = "1234567890",
                 Email = "test@example.com",
                 Password = "password",
-                State = "State",
-                LGA = "LGA"
+                StateOfResidence = "Oyo",
+                LGA = "Akinyele"
             };
             var hashedPassword = "hashedpassword";
             var customer = new Customer
