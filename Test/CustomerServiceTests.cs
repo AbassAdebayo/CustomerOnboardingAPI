@@ -14,14 +14,17 @@ namespace Test
         private readonly Mock<ICustomerRepository> _repositoryMock;
         private readonly Mock<ICustomerService> _serviceMock;
         private readonly ICustomerService _service;
-        private readonly ILogger<CustomerServiceTests> _logger;
-        private readonly IPasswordHasherService _passwordHasherService;
+        private readonly Mock<ILogger<CustomerService>> _loggerMock;
+        private readonly Mock<IPasswordHasherService> _passwordHasherServiceMock;
 
         public CustomerServiceTests()
         {
             _repositoryMock = new Mock<ICustomerRepository>();
             _serviceMock = new Mock<ICustomerService>();
-            _service = new CustomerService(_repositoryMock.Object, ILogger<CustomerServiceTests);
+            _loggerMock = new Mock<ILogger<CustomerService>>();
+            _passwordHasherServiceMock = new Mock<IPasswordHasherService>();
+
+            _service = new CustomerService(_repositoryMock.Object, _loggerMock.Object, _passwordHasherServiceMock.Object);
         }
 
         [Fact]
@@ -29,7 +32,7 @@ namespace Test
         {
 
             var customer = new Customer { PhoneNumber = "1234567890", Email = "test@example.com", Password = "password", StateOfResidence = "State", LGA = "LGA" };
-            await _serviceMock.Setup(service => service.VerifyOTPAsync(It.IsAny<string>())).ReturnsAsync(true);
+            object value = await _serviceMock.Setup(service => service.VerifyOTPAsync(It.IsAny<string>())).ReturnsAsync(true);
             _repositoryMock.Setup(repo => repo.AddCustomer(It.IsAny<Customer>())).ReturnsAsync(customer);
 
             var result = await _service.OnboardCustomer(customer);

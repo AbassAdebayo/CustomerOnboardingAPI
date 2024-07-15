@@ -42,5 +42,10 @@ namespace Infrastructure.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> VerifyPhoneNumber(string phoneNumber)
+        {
+            
+        }
     }
 }
