@@ -30,43 +30,46 @@ namespace Test
         [Fact]
         public async Task OnboardCustomerAsync_ShouldReturnCustomer_WhenPhoneNumberIsVerified()
         {
-            var onboardCustomerDTO = new OboardCustomerRequestModel
-        {
-            PhoneNumber = "1234567890",
-            Email = "test@example.com",
-            Password = "password",
-            State = "State",
-            LGA = "LGA"
-        };
-        var hashedPassword = "hashedpassword";
-        var customer = new Customer
-        {
-            PhoneNumber = onboardCustomerDTO.PhoneNumber,
-            Email = onboardCustomerDTO.Email,
-            Password = hashedPassword,
-            StateOfResidence = onboardCustomerDTO.StateOfResidence,
-            LGA = onboardCustomerDTO.LGA
-        };
+                // Arrange
+                var onboardCustomerDTO = new OboardCustomerRequestModel
+            {
+                PhoneNumber = "1234567890",
+                Email = "test@example.com",
+                Password = "password",
+                State = "State",
+                LGA = "LGA"
+            };
+            var hashedPassword = "hashedpassword";
+            var customer = new Customer
+            {
+                PhoneNumber = onboardCustomerDTO.PhoneNumber,
+                Email = onboardCustomerDTO.Email,
+                Password = hashedPassword,
+                StateOfResidence = onboardCustomerDTO.StateOfResidence,
+                LGA = onboardCustomerDTO.LGA
+            };
 
             
            
-        _serviceMock.Setup(service => service.VerifyOTPAsync(It.IsAny<string>())).ReturnsAsync(true);
-        _passwordHasherServiceMock.Setup(ph => ph.HashPassword(It.IsAny<string>())).Returns(hashedPassword);
-        _serviceMock.Setup(service => service.OnboardCustomer(It.IsAny<Customer>())).ReturnsAsync(customer);
-
-        var result = await _service.OnboardCustomer(customer);
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(onboardCustomerDTO.PhoneNumber, result.PhoneNumber);
-        Assert.Equal(onboardCustomerDTO.Email, result.Email);
-        Assert.Equal(onboardCustomerDTO, result.Password);
-        Assert.Equal(onboardCustomerDTO.StateOfResidence, result.StateOfResidence);
-        Assert.Equal(onboardCustomerDTO.LGA, result.LGA);
-
-        _serviceMock.Verify(service => service.VerifyOTPAsync(It.IsAny<string>()), Times.Once);
-        _serviceMock.Verify(service => service.OnboardCustomer(It.IsAny<Customer>()), Times.Once);
-        _passwordHasherServiceMock.Verify(ph => ph.HashPassword(It.IsAny<string>()), Times.Once);
-            
+            _serviceMock.Setup(service => service.VerifyOTPAsync(It.IsAny<string>())).ReturnsAsync(true);
+            _passwordHasherServiceMock.Setup(ph => ph.HashPassword(It.IsAny<string>())).Returns(hashedPassword);
+            _serviceMock.Setup(service => service.OnboardCustomer(It.IsAny<Customer>())).ReturnsAsync(customer);
+    
+            // Act
+            var result = await _service.OnboardCustomer(customer);
+                
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(onboardCustomerDTO.PhoneNumber, result.PhoneNumber);
+            Assert.Equal(onboardCustomerDTO.Email, result.Email);
+            Assert.Equal(onboardCustomerDTO, result.Password);
+            Assert.Equal(onboardCustomerDTO.StateOfResidence, result.StateOfResidence);
+            Assert.Equal(onboardCustomerDTO.LGA, result.LGA);
+    
+            _serviceMock.Verify(service => service.VerifyOTPAsync(It.IsAny<string>()), Times.Once);
+            _serviceMock.Verify(service => service.OnboardCustomer(It.IsAny<Customer>()), Times.Once);
+            _passwordHasherServiceMock.Verify(ph => ph.HashPassword(It.IsAny<string>()), Times.Once);
+                
+            }
         }
-    }
 }
