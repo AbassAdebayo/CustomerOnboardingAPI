@@ -12,7 +12,6 @@ namespace Application.Interfaces.Services
     {
         public Task<BaseResponse<Customer>> OnboardCustomerAsync(OnboardCustomerRequestModel request);
         public Task<BaseResponse<IEnumerable<CustomerDto>>> GetAllOnboardedCustomersAsync();
-        //public Task<BaseResponse<Customer>> GetCustomerByPhoneNumber(string phoneNumber);
         public Task<BaseResponse> SendOTPAsync(string phoneNumber);
         public Task<BaseResponse> VerifyOTPAsync(VerifyOtpRequestModel request);
     }

@@ -16,7 +16,7 @@ namespace Domain.Entities
         public string StateOfResidence { get; set; }
         public string LGA { get; set; }
         public bool IsVerified { get; set; }
-        public string OTP { get; set; }
+        public string? OTP { get; set; }
         public DateTime? OTPExpiration { get; set; }
     }
 }

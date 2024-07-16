@@ -3,7 +3,7 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Infrastructure.Context;
 using Infrastructure.Repositories;
-using Infrastructure.Services;
+using Application.Services;  
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;

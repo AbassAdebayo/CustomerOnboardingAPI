@@ -2,9 +2,9 @@ using Application.DTOs;
 using Application.Identity;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
+using Application.Services;
 using Castle.Core.Logging;
 using Domain.Entities;
-using Infrastructure.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
 

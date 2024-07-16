@@ -11,8 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-namespace Infrastructure.Services
+namespace Application.Services
 {
     public class CustomerService : ICustomerService
     {
@@ -20,7 +19,9 @@ namespace Infrastructure.Services
         private readonly ILogger<CustomerService> _logger;
         private readonly IPasswordHasherService _passwordHasherService;
 
-        public CustomerService(ICustomerRepository customerRepository, ILogger<CustomerService> logger,
+        private static StateLgaMapping _stateLgaMapping;
+
+        public CustomerService(ICustomerRepository customerRepository, ILogger<CustomerService> logger, 
             IPasswordHasherService passwordHasherService)
         {
             _customerRepository = customerRepository;
@@ -60,14 +61,9 @@ namespace Infrastructure.Services
             };
         }
 
-        //public Task<BaseResponse<Customer>> GetCustomerByPhoneNumber(string phoneNumber)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
         public async Task<BaseResponse<Customer>> OnboardCustomerAsync(OnboardCustomerRequestModel request)
         {
-            if (request is null)
+            if(request is null)
             {
                 _logger.LogError("Fields cannot be empty!");
                 return new BaseResponse<Customer>
@@ -79,7 +75,7 @@ namespace Infrastructure.Services
 
             var existingCustomer = await _customerRepository.GetCustomerByPhoneNumber(request.PhoneNumber);
 
-            if (existingCustomer is not null)
+            if(existingCustomer != null)
             {
                 _logger.LogError("Customer already exist!");
                 return new BaseResponse<Customer>
@@ -89,16 +85,18 @@ namespace Infrastructure.Services
                 };
             }
 
-            if (!StateLgaMapping.Mappings.ContainsKey(request.StateOfResidence) ||
-                !StateLgaMapping.Mappings[request.StateOfResidence].Contains(request.LGA))
+            var customerExistsByEmail = await _customerRepository.CustomerExistsByEmail(request.Email);
+            if(customerExistsByEmail)
             {
-                _logger.LogError("LGA does not match the selected state!");
+                _logger.LogError("Customer already exist!");
                 return new BaseResponse<Customer>
                 {
-                    Message = "LGA does not match the selected state!",
+                    Message = "Customer already exist!",
                     Status = false
                 };
             }
+
+            ProcessStateAndLga(request.StateOfResidence, request.LGA);
 
             var hashedPassword = _passwordHasherService.HashPassword(request.Password);
 
@@ -110,12 +108,8 @@ namespace Infrastructure.Services
                 LGA = request.LGA,
                 StateOfResidence = request.StateOfResidence
             };
-
-            customer.OTP = GenerateOTP();
-            customer.OTPExpiration = DateTime.UtcNow.AddMinutes(5);
-
             var newCustomer = await _customerRepository.AddCustomer(customer);
-            if (newCustomer is null)
+            if(newCustomer is null)
             {
                 _logger.LogError("Customer creation couldn't be completed.");
                 return new BaseResponse<Customer>
@@ -125,12 +119,17 @@ namespace Infrastructure.Services
                 };
             }
 
-            await SendOTPAsync(customer.PhoneNumber);
+
+            newCustomer.OTP = GenerateOTP();
+            newCustomer.OTPExpiration = DateTime.UtcNow.AddMinutes(5);
+
+            await _customerRepository.SaveChangesAsync();
+            await SendOTPAsync(newCustomer.PhoneNumber);
 
             _logger.LogError("Customer has been created and OTP sent successfully.");
             return new BaseResponse<Customer>
             {
-                Message = $"Customer has been created and OTP sent to {customer.PhoneNumber} successfully.",
+                Message = $"Customer has been created and OTP sent to {newCustomer.PhoneNumber} successfully.",
                 Status = true,
                 Data = newCustomer
             };
@@ -149,9 +148,14 @@ namespace Infrastructure.Services
                 };
             }
 
+            getCustomer.OTP = GenerateOTP();
+            getCustomer.OTPExpiration = DateTime.UtcNow.AddMinutes(5);
+
+            await _customerRepository.SaveChangesAsync();
+
             return new BaseResponse
             {
-                Message = $"Seding OTP {getCustomer.OTP} to phone number {phoneNumber}",
+                Message = $"Seding OTP to phone number {phoneNumber}",
                 Status = true,
 
             };
@@ -159,16 +163,6 @@ namespace Infrastructure.Services
 
         public async Task<BaseResponse> VerifyOTPAsync(VerifyOtpRequestModel request)
         {
-            if (request is null)
-            {
-                _logger.LogError("Fields cannot be empty!");
-                return new BaseResponse
-                {
-                    Message = "Fields cannot be empty!",
-                    Status = false
-                };
-            }
-
             var getCustomer = await _customerRepository.GetCustomerByPhoneNumber(request.PhoneNumber);
             if (getCustomer is null)
             {
@@ -180,7 +174,7 @@ namespace Infrastructure.Services
                 };
             }
 
-            if (getCustomer.OTP != request.OTP)
+            if(getCustomer.OTP != request.OTP)
             {
                 _logger.LogError("Invalid OTP!");
                 return new BaseResponse
@@ -190,22 +184,12 @@ namespace Infrastructure.Services
                 };
             }
 
-            if (getCustomer.OTPExpiration < DateTime.UtcNow)
+            if(getCustomer.OTPExpiration < DateTime.UtcNow)
             {
                 _logger.LogError("OTP entered has expired!");
                 return new BaseResponse
                 {
                     Message = "OTP entered has expired!",
-                    Status = false
-                };
-            }
-
-            if (getCustomer.IsVerified)
-            {
-                _logger.LogError("Phone number already verified!");
-                return new BaseResponse
-                {
-                    Message = "Phone number already verified!",
                     Status = false
                 };
             }
@@ -222,10 +206,24 @@ namespace Infrastructure.Services
             };
         }
 
-        private string GenerateOTP()
+       private string GenerateOTP()
         {
             var random = new Random();
             return random.Next(100000, 999999).ToString();
+       }
+
+        private void ProcessStateAndLga(string state, string lga)
+        {
+            _stateLgaMapping = new StateLgaMapping();
+
+            try
+            {
+                _stateLgaMapping.ValidateStateAndLga(state, lga);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

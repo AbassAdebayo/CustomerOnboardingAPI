@@ -30,6 +30,11 @@ namespace Infrastructure.Repositories
             return await _context.Customers.FirstOrDefaultAsync(c => c.PhoneNumber == phoneNumber);
         }
 
+        public async Task<bool> CustomerExistsByEmail(string email)
+        {
+            return await _context.Customers.AnyAsync(c => c.Email == email);
+        }
+
         public async Task<Customer> AddCustomer(Customer customer)
         {
             await _context.Customers.AddAsync(customer);

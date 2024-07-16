@@ -12,6 +12,7 @@ namespace Application.Interfaces.Repositories
         public Task<Customer> AddCustomer(Customer customer);
         public Task<IEnumerable<Customer>> GetAllOnboardedCustomers();
         public Task<Customer> GetCustomerByPhoneNumber(string phoneNumber);
+        public Task<bool> CustomerExistsByEmail(string email);
         public Task SaveChangesAsync();
     }
 }

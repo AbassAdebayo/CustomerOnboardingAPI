@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Application.Extensions
 {
-    public static class StateLgaMapping
+    public class StateLgaMapping
     {
-        public static readonly Dictionary<string, List<string>> Mappings = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
+        private readonly Dictionary<string, List<string>> Mappings = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
         {
             { "ABIA", new List<string> { "ABA NORTH", "ABA SOUTH", "AROCHUKWU", "BENDE", "IKWUANO", "ISIALA NGWA NORTH", "ISIALA NGWA SOUTH", "ISUIKWUATO", "OBI NGWA", "OHAFIA", "OSISIOMA", "UGWUNAGBO", "UKWA EAST", "UKWA WEST", "UMUAHIA NORTH", "UMUAHIA SOUTH", "UMU NNEOCHI" } },
             { "ADAMAWA", new List<string> { "DEMSA", "FUFORE", "GANYE", "GAYUK", "GOMBI", "GRIE", "HONG", "JADA", "LAMURDE", "MADAGALI", "MAIHA", "MAYO-BELWA", "MICHIKA", "MUBI NORTH", "MUBI SOUTH", "NUMAN", "SHELLENG", "SONG", "TOUNGO", "YOLA NORTH", "YOLA SOUTH" } },
@@ -47,5 +47,18 @@ namespace Application.Extensions
             { "YOBE", new List<string> { "BADE", "BURSARI", "DAMATURU", "FIKA", "FUNE", "GEIDAM", "GUJBA", "GULANI", "JAKUSKO", "KARASUWA", "MACHINA", "NANGERE", "NGURU", "POTISKUM", "TARMUWA", "YUNUSARI", "YUSUFARI" } },
             { "ZAMFARA", new List<string> { "ANKA", "BAKURA", "BIRNIN MAGAJI/KIYAW", "BUKKUYUM", "BUNGUDU", "GUMMI", "GUSAU", "KAURA NAMODA", "MARADUN", "MARU", "SHINKAFI", "TALATA MAFARA", "TSAFE", "ZURMI" } }
         };
+
+        public void ValidateStateAndLga(string state, string lga)
+        {
+            if(Mappings.TryGetValue(state, out var lgas))
+            {
+                if (!lgas.Contains(lga))
+                {
+                    throw new Exception("Invalid LGA for the selected State!");
+                }
+            }
+
+            throw new Exception("Invalid State!");
+        }
     }
 }
