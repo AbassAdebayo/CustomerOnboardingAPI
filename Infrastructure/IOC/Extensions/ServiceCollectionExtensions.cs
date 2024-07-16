@@ -18,17 +18,18 @@ namespace Infrastructure.IOC.Extensions
     {
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
+            
             return services
-                .AddScoped<ICustomerRepository, CustomerRepository>();
-
+                .AddScoped<ICustomerService, CustomerService>()
+                .AddScoped<IPasswordHasherService, PasswordHasherService>();
 
         }
 
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
+            
             return services
-                .AddScoped<ICustomerService, CustomerService>()
-                .AddScoped<IPasswordHasherService, PasswordHasherService>();
+                .AddScoped<ICustomerRepository, CustomerRepository>();
 
         }
 
